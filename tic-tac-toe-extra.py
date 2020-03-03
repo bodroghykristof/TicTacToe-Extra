@@ -47,25 +47,41 @@ def mark(board, player, row, col):
     board[row][col] = player_dict[player]
 
 
+def has_won(board, player, lengtht):
+    player_dict = {"Player one": "X", "Player two": "O"}
+    mark = player_dict[player]
+    winners = []
+    my_boolean = False
+    for i in range(lengtht):
+        for j in range(lengtht - 4):
+            count_in_row = 0
+            for k in range(j, j + 5):
+                if board[i][k] == mark:
+                    count_in_row = count_in_row + 1
+            if count_in_row == 5:
+                my_boolean = True
+    for i in range(lengtht):
+        for j in range(lengtht - 4):
+            count_in_column = 0
+            for k in range(j, j + 5):
+                if board[k][i] == mark:
+                    count_in_column = count_in_column + 1
+            if count_in_column == 5:
+                my_boolean = True
+    for i in range(lengtht - 4):
+        for j in range(lengtht - 4):
+            count_in_diagonal = 0
+            for k in range(5):
+                if board[i+k][j+k] == mark:
+                    count_in_diagonal = count_in_diagonal + 1
+            if count_in_diagonal == 5:
+                my_boolean = True
+    return my_boolean
 
-# def has_won(board, player):
-#     player_dict = {"Player one": "X", "Player two": "O"}
-#     my_boolean = False
-#     for row in board:
-#         if row == [player_dict[player], player_dict[player], player_dict[player]]:
-#             my_boolean = True
-#     for i in range(3):
-#         if board[0][i] == player_dict[player] and board[1][i] == player_dict[player] and board[2][i] == player_dict[player]:
-#             my_boolean = True
-#     if board[0][0] == player_dict[player] and board[1][1] == player_dict[player] and board[2][2] == player_dict[player]:
-#         my_boolean = True
-#     if board[0][2] == player_dict[player] and board[1][1] == player_dict[player] and board[2][0] == player_dict[player]:
-#         my_boolean = True
-#     return my_boolean
 
-def win_screen(board, player):
+def win_screen(board, player, lengtht):
     os.system("clear")
-    print_board(board)
+    print_board(board, lengtht)
     print(f"\n{player} won!")
 
 
@@ -147,19 +163,19 @@ def tictactoe_game(mode='HUMAN-HUMAN'):
         print(row, col)
         mark(board, player, row, col)
         # print_board(board, lengtht)
+        if lengtht >= 5:
+            if has_won(board, player, lengtht) is True:
+                win_screen(board, player, lengtht)
+                break
         choice = is_new_board(board, lengtht)
-        if choice == True:
-            print(board)
+        if choice is True:
             board = make_new_board(board, lengtht)
             lengtht += 2
-        print(lengtht)
         print_board(board, lengtht)
-        # if has_won(board, player) == True:
-        #     win_screen(board, player)
+
+        # if is_full(board) is True:
+        #     tie_screen(board, player)
         #     # break
-        if is_full(board) == True:
-            tie_screen(board, player)
-            # break
         player_index += 1
 
 
