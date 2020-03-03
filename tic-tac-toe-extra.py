@@ -1,14 +1,17 @@
 import os
+from termcolor import colored
 
 
 def init_board():
     board = [[".", ".", "."], [".", ".", "."], [".", ".", "."]]
     return board
 
+
 def translate_index(lengtht, row, column):
     row_index = int(row) + int((lengtht-1)/2)
     column_index = int(column) + int((lengtht-1)/2)
     return row_index, column_index
+
 
 def get_move(board, player, lengtht):
     while True:
@@ -18,15 +21,10 @@ def get_move(board, player, lengtht):
             row_index, column_index = translate_index(lengtht, row, column)
             if board[row_index][column_index] != ".":
                 raise KeyError
-            count_of_meet = 0
-            # for i in range(row_index - 1, row_index + 2):
-            #     for j in range(column_index - 1, column_index + 2):
-            #         if board[row_index][column_index] != ".":
-            #             count_of_meet += 1
-            # if count_of_meet == 1:
-            #     raise KeyError
+            player_dict = {"Player one": "X", "Player two": "O"}
+            board[row_index][column_index] = player_dict[player]
             break
-        except KeyError:
+        except (KeyError, ValueError):
             os.system("clear")
             print_board(board, lengtht)
             print(f"\n{player}'s turn")
@@ -42,16 +40,15 @@ def choose_player(player_index):
     return player
 
 
-def mark(board, player, row, col):
-    player_dict = {"Player one": "X", "Player two": "O"}
-    board[row][col] = player_dict[player]
+# def mark(board, player, row, col):
+#     player_dict = {"Player one": "X", "Player two": "O"}
+#     board[row][col] = player_dict[player]
 
 
 def has_won(board, player, lengtht):
     player_dict = {"Player one": "X", "Player two": "O"}
     mark = player_dict[player]
     winners = []
-    my_boolean = False
     for i in range(lengtht):
         for j in range(lengtht - 4):
             count_in_row = 0
@@ -59,7 +56,8 @@ def has_won(board, player, lengtht):
                 if board[i][k] == mark:
                     count_in_row = count_in_row + 1
             if count_in_row == 5:
-                my_boolean = True
+                for k in range(j, j + 5):
+                    winners.append((i, k))
     for i in range(lengtht):
         for j in range(lengtht - 4):
             count_in_column = 0
@@ -67,7 +65,8 @@ def has_won(board, player, lengtht):
                 if board[k][i] == mark:
                     count_in_column = count_in_column + 1
             if count_in_column == 5:
-                my_boolean = True
+                for k in range(j, j + 5):
+                    winners.append((k, i))
     for i in range(lengtht - 4):
         for j in range(lengtht - 4):
             count_in_diagonal = 0
@@ -75,13 +74,45 @@ def has_won(board, player, lengtht):
                 if board[i+k][j+k] == mark:
                     count_in_diagonal = count_in_diagonal + 1
             if count_in_diagonal == 5:
-                my_boolean = True
-    return my_boolean
+                for k in range(5):
+                    winners.append((i+k, j+k))
+    for i in range(lengtht - 1, 3):
+        for j in range(lengtht - 1, 3):
+            count_in_diagonal = 0
+            for k in range(5):
+                if board[i-k][j-k] == mark:
+                    count_in_diagonal = count_in_diagonal + 1
+            if count_in_diagonal == 5:
+                for k in range(5):
+                    winners.append((i-k, j-k))
+    if winners == []:
+        winners = None
+    return winners
 
 
-def win_screen(board, player, lengtht):
+def coloured_board(board, winner, lengtht):
+    print("  ", end="")
+    for i in range(int(-(lengtht-1)/2), int((lengtht-1)/2 + 1)):
+        print(f"{i}".rjust(2), end="")
+    print()
+    for j in range(lengtht):
+        index = int(j + (1-lengtht)/2)
+        print(f"{index}".rjust(2), end=" ")
+        for i in range(lengtht-1):
+            if (j,i) in winner:
+                print(colored(f"{board[j][i]}", "red").center(2), end=" ")
+            else:
+                print(f"{board[j][i]}".center(2), end="")
+        if (j, lengtht-1) in winner:
+            print(colored(f"{board[j][lengtht-1]}", "red").center(2), end=" ")
+        else:
+            print(f"{board[j][lengtht - 1]}".center(2), end="")
+        print()
+
+
+def win_screen(board, player, lengtht, winner):
     os.system("clear")
-    print_board(board, lengtht)
+    coloured_board(board, winner, lengtht)
     print(f"\n{player} won!")
 
 
@@ -113,6 +144,7 @@ def print_board(board, lengtht):
         print(f"{board[j][lengtht-1]}".center(2), end="")
         print()
 
+
 def is_new_board(board, lengtht):
     new_board = False
     for i in range(lengtht):
@@ -126,6 +158,7 @@ def is_new_board(board, lengtht):
             new_board = True
     print(new_board)
     return new_board
+
 
 def make_new_board(board, lengtht):
     new_board = []
@@ -161,11 +194,13 @@ def tictactoe_game(mode='HUMAN-HUMAN'):
         row, col = get_move(board, player, lengtht)
         player = choose_player(player_index)
         print(row, col)
-        mark(board, player, row, col)
+        # mark(board, player, row, col)
         # print_board(board, lengtht)
         if lengtht >= 5:
-            if has_won(board, player, lengtht) is True:
-                win_screen(board, player, lengtht)
+            if has_won(board, player, lengtht):
+                winner = has_won(board, player, lengtht)
+                win_screen(board, player, lengtht, winner)
+                # print(winner)
                 break
         choice = is_new_board(board, lengtht)
         if choice is True:
