@@ -16,13 +16,19 @@ def get_move(board, player, lengtht):
             row = input("Enter a valid row!\n")
             column = input("Enter a valid column!\n")
             row_index, column_index = translate_index(lengtht, row, column)
-            # print(row_index, column_index)
             if board[row_index][column_index] != ".":
                 raise KeyError
+            count_of_meet = 0
+            # for i in range(row_index - 1, row_index + 2):
+            #     for j in range(column_index - 1, column_index + 2):
+            #         if board[row_index][column_index] != ".":
+            #             count_of_meet += 1
+            # if count_of_meet == 1:
+            #     raise KeyError
             break
         except KeyError:
             os.system("clear")
-            print_board(board)
+            print_board(board, lengtht)
             print(f"\n{player}'s turn")
             print("Error: invalid coordinates\033[K")
     return row_index, column_index
@@ -79,16 +85,16 @@ def is_full(board):
 
 
 def print_board(board, lengtht):
-    print(" ", end="")
+    print("  ", end="")
     for i in range(int(-(lengtht-1)/2), int((lengtht-1)/2 + 1)):
-        print(f"{i}".rjust(4), end="")
+        print(f"{i}".rjust(2), end="")
     print()
     for j in range(lengtht):
         index = int(j + (1-lengtht)/2)
-        print(f"{index}".rjust(3), end="")
+        print(f"{index}".rjust(2), end=" ")
         for i in range(lengtht-1):
-            print(f"{board[j][i]}".center(3), end="|")
-        print(f"{board[j][lengtht-1]}".center(3), end="")
+            print(f"{board[j][i]}".center(2), end="")
+        print(f"{board[j][lengtht-1]}".center(2), end="")
         print()
 
 def is_new_board(board, lengtht):
@@ -107,25 +113,19 @@ def is_new_board(board, lengtht):
 
 def make_new_board(board, lengtht):
     new_board = []
-    empty_row = list("." * (lengtht+2))
-    new_board.append(empty_row)
+    empty_row_upper = list("." * (lengtht+2))
+    new_board.append(empty_row_upper)
     for row in board:
         new_row = ["."]
         for item in row:
             new_row.append(item)
         new_row.append(".")
         new_board.append(new_row)
-    new_board.append(empty_row)
+    empty_row_upper = list("." * (lengtht+2))
+    new_board.append(empty_row_upper)
     print(new_board)
     return new_board
 
-# def print_board(board):
-#     print("1".rjust(4) + "2".rjust(4) + "3".rjust(4) + "\n")
-#     print("A".ljust(2) + str(board[0][0]).center(3) + "|" + str(board[0][1]).center(3) + "|" + str(board[0][2]).center(3))
-#     print("  ---+---+---")
-#     print("B".ljust(2) + str(board[1][0]).center(3) + "|" + str(board[1][1]).center(3) + "|" + str(board[1][2]).center(3))
-#     print("  ---+---+---")
-#     print("C".ljust(2) + str(board[2][0]).center(3) + "|" + str(board[2][1]).center(3) + "|" + str(board[2][2]).center(3))
 
 def print_result(winner):
     """Congratulates winner or proclaims tie (if winner equals zero)."""
